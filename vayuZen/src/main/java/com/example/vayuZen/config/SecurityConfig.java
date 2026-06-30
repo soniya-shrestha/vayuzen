@@ -39,13 +39,16 @@ public class SecurityConfig {
 
                 // Define which routes are public vs protected
                 .authorizeHttpRequests(auth -> auth
-                        // Anyone can hit the auth endpoints (register & login)
+
+                        // ✅ VERY IMPORTANT: allow all OPTIONS requests (CORS preflight)
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ✅ allow auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-                        // Every other endpoint requires a valid JWT
+
                         .anyRequest().authenticated()
                 )
 

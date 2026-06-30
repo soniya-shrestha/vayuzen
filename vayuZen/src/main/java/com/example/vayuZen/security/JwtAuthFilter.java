@@ -1,6 +1,5 @@
 package com.example.vayuZen.security;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,8 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,13 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
-// This filter runs on EVERY incoming HTTP request
-// It checks if the request has a valid JWT in the Authorization header
-// If valid → it marks the user as authenticated so Spring Security lets them through
 @Component
-@RequiredArgsConstructor    // Lombok: auto-generates constructor for final fields
+@RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -37,46 +30,60 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // 1. Get the Authorization header from the request
-        final String authHeader = request.getHeader("Authorization");
-
-        // 2. If there's no header or it doesn't start with "Bearer ", skip this filter
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // ✅ 1. Skip authentication endpoints (VERY IMPORTANT)
+        String path = request.getServletPath();
+        if (path.startsWith("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 3. Extract the JWT (everything after "Bearer ")
-        final String jwt = authHeader.substring(7);
+        try {
+            // ✅ 2. Get Authorization header
+            final String authHeader = request.getHeader("Authorization");
 
-        // 4. Extract the email stored inside the token
-        final String userEmail = jwtService.extractUsername(jwt);
-
-        // 5. If we got an email and the user isn't already authenticated
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            // 6. Load the user from the database
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-            // 7. Check if the token is valid (email matches + not expired)
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                String role = jwtService.extractClaim(jwt, claims -> claims.get("role", String.class));
-
-                List<GrantedAuthority> authorities =
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
-
-                // 8. Mark the user as authenticated in Spring Security's context
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            // ✅ 3. If no token → continue (DO NOT BLOCK)
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            // ✅ 4. Extract JWT
+            final String jwt = authHeader.substring(7);
+
+            // ✅ 5. Extract username (email)
+            final String userEmail = jwtService.extractUsername(jwt);
+
+            // ✅ 6. Authenticate only if not already authenticated
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+                // ✅ 7. Validate token
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+
+        } catch (Exception e) {
+            // ✅ 8. VERY IMPORTANT: never block request on token error
+            // just continue filter chain
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        // 9. Continue to the next filter / the actual controller
+        // ✅ 9. Continue request
         filterChain.doFilter(request, response);
     }
 }

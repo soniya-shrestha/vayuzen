@@ -1,0 +1,152 @@
+<div class="auth-page">
+
+  <!-- Floating particles background -->
+  <div class="particles" aria-hidden="true">
+    <span class="particle" *ngFor="let p of [1,2,3,4,5,6,7,8,9,10,11,12]"></span>
+  </div>
+
+  <!-- Left branding panel -->
+  <div class="auth-brand">
+    <div class="brand-inner">
+      <div class="logo">
+        <span class="logo-icon">🌬️</span>
+        <span class="logo-text">VayuZen</span>
+      </div>
+      <h1 class="brand-headline">Your air.<br>Your health.<br>Your data.</h1>
+      <p class="brand-sub">
+        VayuZen personalizes health recommendations based on Kathmandu's live air quality and your unique health
+        profile.
+      </p>
+      <div class="feature-list">
+        <div class="feature" *ngFor="let f of features">
+          <span class="feature-icon">{{ f.icon }}</span>
+          <span class="feature-text">{{ f.text }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="auth-form-panel">
+    <div class="auth-card">
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
+          <span class="step-num">{{ currentStep > 1 ? '✓' : '1' }}</span>
+          <span class="step-label">Account</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" [class.active]="currentStep === 2">
+          <span class="step-num">2</span>
+          <span class="step-label">Health Profile</span>
+        </div>
+      </div>
+
+      <div class="card-header">
+        <h2>{{ currentStep === 1 ? 'Create your account' : 'Your health profile' }}</h2>
+        <p>{{ currentStep === 1
+          ? 'Join VayuZen for free — no payment needed'
+          : 'This helps us personalize your air quality recommendations'
+          }}</p>
+      </div>
+
+      <div class="alert alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ── Step 1: Account Info ── -->
+        <div *ngIf="currentStep === 1">
+
+          <div class="form-group">
+            <label for="fullName">Full name</label>
+            <input id="fullName" type="text" formControlName="fullName" placeholder="Aarav Sharma"
+              autocomplete="name" />
+            <span class="field-error" *ngIf="f['fullName'].invalid && f['fullName'].touched">
+              Please enter your full name (min 2 characters)
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input id="email" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email" />
+            <span class="field-error" *ngIf="f['email'].invalid && f['email'].touched">
+              <ng-container *ngIf="f['email'].errors?.['required']">Email is required</ng-container>
+              <ng-container *ngIf="f['email'].errors?.['email']">Enter a valid email</ng-container>
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-with-icon">
+              <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                placeholder="Min. 6 characters" autocomplete="new-password" />
+              <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                {{ showPassword ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            <span class="field-error" *ngIf="f['password'].invalid && f['password'].touched">
+              Password must be at least 6 characters
+            </span>
+          </div>
+         
+          <button type="button" class="btn-primary" (click)="nextStep()">
+            Continue →
+          </button>
+
+        </div>
+
+        <!-- ── Step 2: Health Profile ── -->
+        <div *ngIf="currentStep === 2">
+
+          <div class="health-info-box">
+            <span>ℹ️</span>
+            <p>Your health data stays private and is only used to generate your personal air quality recommendations.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="ageGroup">Age group</label>
+            <select id="ageGroup" formControlName="ageGroup">
+              <option value="" disabled selected>Select your age group</option>
+              <option *ngFor="let ag of ageGroups" [value]="ag.value">{{ ag.label }}</option>
+            </select>
+            <span class="field-error" *ngIf="f['ageGroup'].invalid && f['ageGroup'].touched">
+              Please select your age group
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="healthCondition">Health condition</label>
+            <select id="healthCondition" formControlName="healthCondition">
+              <option value="" disabled selected>Select health condition</option>
+              <option *ngFor="let hc of healthConditions" [value]="hc.value">{{ hc.label }}</option>
+            </select>
+            <span class="field-error" *ngIf="f['healthCondition'].invalid && f['healthCondition'].touched">
+              Please select a health condition
+            </span>
+          </div>
+
+          <div class="button-row">
+            <button type="button" class="btn-outline" (click)="prevStep()" style="width: auto; padding: 12px 20px;">
+              ← Back
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="isLoading" style="flex: 1;">
+              <span class="spinner" *ngIf="isLoading"></span>
+              <span>{{ isLoading ? 'Creating account...' : 'Create account' }}</span>
+            </button>
+          </div>
+
+        </div>
+
+      </form>
+
+      <p class="switch-link">
+        Already have an account?
+        <a routerLink="/auth/login">Sign in</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>

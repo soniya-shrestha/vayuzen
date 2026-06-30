@@ -1,12 +1,11 @@
 package com.example.vayuZen.dto;
 
 import com.example.vayuZen.entity.User;
-import com.example.vayuZen.validation.PasswordMatches;
 import lombok.Data;
 import jakarta.validation.constraints.*;
 
 
-@PasswordMatches
+
 @Data
 public class RegisterRequest {
 
@@ -24,9 +23,6 @@ public class RegisterRequest {
             message = "Password must include uppercase, lowercase, number and special character"
     )
     private String password;
-
-    @NotBlank(message = "Confirm password is required")
-    private String confirmPassword;
 
     @NotNull(message = "Age group is required")
     private User.AgeGroup ageGroup;
