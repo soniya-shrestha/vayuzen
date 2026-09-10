@@ -38,10 +38,21 @@
 }
 
 @keyframes float {
-  0%   { transform: translateY(0) translateX(0) scale(1); }
-  33%  { transform: translateY(-30px) translateX(15px) scale(1.1); }
-  66%  { transform: translateY(-15px) translateX(-10px) scale(0.9); }
-  100% { transform: translateY(0) translateX(0) scale(1); }
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+
+  33% {
+    transform: translateY(-30px) translateX(15px) scale(1.1);
+  }
+
+  66% {
+    transform: translateY(-15px) translateX(-10px) scale(0.9);
+  }
+
+  100% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
 }
 
 // ─── Left Branding Panel ──────────────────────────────────────────────────────
@@ -54,7 +65,9 @@
   position: relative;
   z-index: 1;
 
-  @media (max-width: 768px) { display: none; }
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 .brand-inner {
@@ -70,7 +83,7 @@
 
   .logo-icon {
     font-size: 32px;
-    filter: drop-shadow(0 0 12px rgba(56,182,200,0.6));
+    filter: drop-shadow(0 0 12px rgba(56, 182, 200, 0.6));
   }
 
   .logo-text {
@@ -94,7 +107,7 @@
 .brand-sub {
   font-size: 16px;
   line-height: 1.7;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 48px;
 }
 
@@ -116,7 +129,7 @@
 
     .stat-label {
       font-size: 12px;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255, 255, 255, 0.6);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -133,7 +146,7 @@
   background: var(--color-white);
   position: relative;
   z-index: 1;
-  box-shadow: -20px 0 60px rgba(0,0,0,0.2);
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
     width: 100%;
@@ -167,27 +180,54 @@
 // ─── Password Input with Show/Hide Toggle ─────────────────────────────────────
 .input-with-icon {
   position: relative;
+  display: block;
+  width: 100%;
 
   input {
     width: 100%;
-    padding-right: 44px;
+    padding: 11px 44px 11px 14px !important; /* right padding makes room for icon */
+    border: 1.5px solid #C8EEF3;
+    border-radius: 6px;
+    font-size: 15px;
+    color: #2D3748;
+    background: #ffffff;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #38B6C8;
+      box-shadow: 0 0 0 3px rgba(56, 182, 200, 0.15);
+    }
   }
 
   .toggle-password {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 4px;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-
-    &:hover { opacity: 1; }
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  z-index: 10;
+ 
+  svg {
+    display: block;
+    transition: stroke 0.2s;
   }
+ 
+  &:hover svg {
+    stroke: #0F4C5C;
+  }
+}
 }
 
 // ─── Switch Link ──────────────────────────────────────────────────────────────
@@ -202,6 +242,8 @@
     font-weight: 600;
     margin-left: 4px;
 
-    &:hover { text-decoration: underline; }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
