@@ -22,7 +22,8 @@ export interface AuthResponse {
   email: string;
   fullName: string;
   ageGroup: string;
-  healthCondition: string;
+  healthCondition: string; 
+  role: 'USER' | 'ADMIN';
   message: string;
 }
 
@@ -80,7 +81,8 @@ export class AuthService {
       email: response.email,
       fullName: response.fullName,
       ageGroup: response.ageGroup,
-      healthCondition: response.healthCondition
+      healthCondition: response.healthCondition, 
+      role: response.role
     }));
     this.isLoggedInSubject.next(true);
   }
@@ -94,6 +96,10 @@ export class AuthService {
   getCurrentUser(): AuthResponse | null {
     const user = localStorage.getItem(this.USER_KEY);
     return user ? JSON.parse(user) : null;
+  } 
+
+   isAdmin(): boolean {
+    return this.getCurrentUser()?.role === 'ADMIN';
   }
  
   // Check if a token exists (used on app startup)
