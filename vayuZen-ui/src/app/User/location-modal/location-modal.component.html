@@ -1,0 +1,41 @@
+<div class="modal-overlay">
+  <div class="modal-card">
+
+    <div class="modal-icon">📍</div>
+    <h2>Set your location</h2>
+    <p>
+      VayuZen shows air quality for your specific area in Kathmandu valley —
+      so you get accurate readings, not just a city-wide average.
+    </p>
+
+    <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+    <!-- Auto-detect button -->
+    <button class="btn-primary" (click)="detectLocation()" [disabled]="isDetecting" *ngIf="!showManual">
+      <span *ngIf="isDetecting" class="spinner"></span>
+      <span>{{ isDetecting ? 'Detecting...' : '📡 Use my current location' }}</span>
+    </button>
+
+    <!-- Manual picker link -->
+    <button class="btn-text" (click)="showManualPicker()" *ngIf="!showManual">
+      Or pick your area manually
+    </button>
+
+    <!-- Manual area dropdown -->
+    <div class="manual-picker" *ngIf="showManual">
+      <label>Select your area</label>
+      <select [(ngModel)]="selectedArea">
+        <option [ngValue]="null" disabled selected>Choose your area...</option>
+        <option *ngFor="let area of areas" [ngValue]="area">{{ area.name }}</option>
+      </select>
+      <button class="btn-primary" (click)="selectManual()" [disabled]="!selectedArea">
+        Confirm location
+      </button>
+      <!-- Still offer auto-detect -->
+      <button class="btn-text" (click)="showManual = false" style="margin-top: 8px">
+        ← Try auto-detect instead
+      </button>
+    </div>
+
+  </div>
+</div>

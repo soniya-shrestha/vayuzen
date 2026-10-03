@@ -1,11 +1,13 @@
-spring.application.name=vayuZen 
+spring.application.name=vayuZen
 
+logging.level.org.springframework.security=DEBUG
 spring.datasource.url=jdbc:postgresql://localhost:5432/vayuzen
 spring.datasource.username=postgres
-spring.datasource.password=root
-
+spring.datasource.password=your_password_here
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+jwt.secret=replace-with-your-own-long-random-secret-key-min-32-chars
+jwt.expiration=86400000

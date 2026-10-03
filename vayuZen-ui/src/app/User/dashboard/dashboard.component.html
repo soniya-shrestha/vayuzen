@@ -1,0 +1,324 @@
+<app-location-modal *ngIf="showLocationModal" (locationSelected)="onLocationSelected($event)">
+</app-location-modal>
+
+<div class="dashboard-shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <div class="sb-logo">
+      <!--<span class="logo-icon">🌬️</span> -->
+      <span class="logo-text">VayuZen</span>
+    </div>
+
+    <nav class="sb-nav">
+      <a class="nav-item" *ngFor="let item of navItems" [class.active]="item.active" [routerLink]="item.route">
+        <i class="ti {{ item.icon }}"></i>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="sb-bottom">
+
+      <!-- Settings button with dropdown -->
+      <div class="settings-wrapper">
+        <button class="nav-item settings-btn" (click)="toggleSettings($event)">
+          <i class="ti ti-settings"></i>
+          <span>Settings</span>
+          <i class="ti ti-chevron-up settings-arrow" [class.rotated]="showSettings"></i>
+        </button>
+
+        <!-- Settings dropdown popover -->
+        <div class="settings-dropdown" *ngIf="showSettings">
+          <button class="dropdown-item" (click)="openChangePassword()">
+            <i class="ti ti-lock"></i>
+            <span>Change password</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item danger" (click)="logout()">
+            <i class="ti ti-logout"></i>
+            <span>Sign out</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- User info row (no logout button here anymore) -->
+      <div class="sb-user">
+        <div class="avatar">{{ userInitials }}</div>
+        <div class="user-info">
+          <p class="user-name">{{ user?.fullName }}</p>
+          <p class="user-sub">{{ formatAgeGroup(user?.ageGroup) }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" *ngIf="showChangePassword" (click)="closeChangePassword($event)">
+      <div class="cp-modal">
+        <div class="cp-header">
+          <h3>Change password</h3>
+          <button class="cp-close" (click)="showChangePassword = false">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+
+        <div class="alert-success" *ngIf="cpSuccess">{{ cpSuccess }}</div>
+        <div class="alert-error" *ngIf="cpError">{{ cpError }}</div>
+
+        <div class="form-group">
+          <label>Current password</label>
+          <div class="input-with-icon">
+            <input [type]="showCurrent ? 'text' : 'password'" [(ngModel)]="currentPassword"
+              placeholder="Enter current password" />
+            <button type="button" class="toggle-password" (click)="showCurrent = !showCurrent">
+              <svg *ngIf="!showCurrent" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg *ngIf="showCurrent" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>New password</label>
+          <div class="input-with-icon">
+            <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="newPassword" placeholder="Min. 6 characters" />
+            <button type="button" class="toggle-password" (click)="showNew = !showNew">
+              <svg *ngIf="!showNew" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg *ngIf="showNew" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm new password</label>
+          <div class="input-with-icon">
+            <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPassword"
+              placeholder="Repeat new password" />
+            <button type="button" class="toggle-password" (click)="showConfirm = !showConfirm">
+              <svg *ngIf="!showConfirm" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg *ngIf="showConfirm" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="cp-submit" (click)="submitChangePassword()" [disabled]="cpLoading">
+          <span *ngIf="cpLoading" class="spinner"></span>
+          {{ cpLoading ? 'Updating...' : 'Update password' }}
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Main Content ───────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div>
+        <h1>Air Quality</h1>
+        <p class="topbar-sub">
+          <i class="ti ti-map-pin" style="font-size: 13px"></i>
+          {{ currentLocation }} · Updated {{ aqiData.updatedAt }}
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="location-btn" (click)="changeLocation()">
+          <i class="ti ti-map-pin"></i> Change area
+        </button>
+        <button class="refresh-btn" (click)="refresh()" [disabled]="isLoading">
+          <i class="ti ti-refresh" [class.spinning]="isLoading"></i>
+          {{ isLoading ? 'Refreshing...' : 'Refresh' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- AQI Hero Card -->
+    <div class="aqi-hero" [ngClass]="aqiClass">
+      <div class="aqi-circle" [ngClass]="aqiClass">
+        <span class="aqi-value">{{ aqiData.aqi }}</span>
+        <span class="aqi-label">AQI</span>
+      </div>
+      <div class="aqi-info">
+        <h2>{{ aqiData.level === 'Low' ? 'Good air quality' :
+          aqiData.level === 'Moderate' ? 'Moderate air quality' :
+          aqiData.level === 'High' ? 'Unhealthy air quality' : 'Very unhealthy air quality' }}</h2>
+        <div class="aqi-status-badge" [ngClass]="aqiClass">
+          <i class="ti ti-alert-circle"></i>
+          {{ aqiData.level }} risk
+          <span *ngIf="user?.healthCondition !== 'NONE'">for {{ formatCondition(user?.healthCondition) }}
+            patients</span>
+        </div>
+        <p class="aqi-desc">
+          <ng-container *ngIf="aqiData.aqi > 150">
+            Outdoor activities are not recommended. People with respiratory conditions should stay indoors.
+          </ng-container>
+          <ng-container *ngIf="aqiData.aqi > 100 && aqiData.aqi <= 150">
+            Sensitive groups should limit prolonged outdoor exposure. Consider wearing a mask.
+          </ng-container>
+          <ng-container *ngIf="aqiData.aqi <= 100">
+            Air quality is acceptable. Unusually sensitive individuals may experience minor effects.
+          </ng-container>
+        </p>
+      </div>
+      <div class="aqi-meta">
+        <span class="meta-label">Source</span>
+        <span class="meta-val">Open-Meteo API</span>
+        <span class="meta-label" style="margin-top: 10px">Location</span>
+        <span class="meta-val">Kathmandu, NP</span>
+      </div>
+    </div>
+
+    <!-- Pollutant Metrics Grid -->
+    <div class="section-title">Pollutant levels</div>
+    <div class="metrics-grid">
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">PM2.5</span>
+          <span class="metric-badge" [style.background]="aqiData.pm25 > 55 ? '#FFF5F5' : '#F0FFF4'"
+            [style.color]="aqiData.pm25 > 55 ? '#E53E3E' : '#38A169'">
+            {{ aqiData.pm25 > 55 ? 'High' : 'Normal' }}
+          </span>
+        </div>
+        <div class="metric-value">{{ aqiData.pm25 }}<span class="metric-unit">µg/m³</span></div>
+        <div class="metric-bar">
+          <div class="metric-fill" [style.width.%]="pm25Percent"
+            [style.background]="aqiData.pm25 > 55 ? '#E53E3E' : '#38A169'"></div>
+        </div>
+        <div class="metric-desc">Safe limit: 25 µg/m³</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">PM10</span>
+          <span class="metric-badge" [style.background]="aqiData.pm10 > 150 ? '#FFFBEB' : '#F0FFF4'"
+            [style.color]="aqiData.pm10 > 150 ? '#D69E2E' : '#38A169'">
+            {{ aqiData.pm10 > 150 ? 'Elevated' : 'Normal' }}
+          </span>
+        </div>
+        <div class="metric-value">{{ aqiData.pm10 }}<span class="metric-unit">µg/m³</span></div>
+        <div class="metric-bar">
+          <div class="metric-fill" [style.width.%]="pm10Percent"
+            [style.background]="aqiData.pm10 > 150 ? '#D69E2E' : '#38A169'"></div>
+        </div>
+        <div class="metric-desc">Safe limit: 50 µg/m³</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">NO₂</span>
+          <span class="metric-badge" [style.background]="aqiData.no2 > 100 ? '#FFF5F5' : '#E8F7F9'"
+            [style.color]="aqiData.no2 > 100 ? '#E53E3E' : '#0F4C5C'">
+            {{ aqiData.no2 > 100 ? 'High' : 'Acceptable' }}
+          </span>
+        </div>
+        <div class="metric-value">{{ aqiData.no2 }}<span class="metric-unit">µg/m³</span></div>
+        <div class="metric-bar">
+          <div class="metric-fill" [style.width.%]="no2Percent"
+            [style.background]="aqiData.no2 > 100 ? '#E53E3E' : '#38B6C8'"></div>
+        </div>
+        <div class="metric-desc">Safe limit: 200 µg/m³</div>
+      </div>
+
+    </div>
+
+    <!-- Bottom grid: Recommendations + Health Risk -->
+    <div class="bottom-grid">
+
+      <!-- Recommendations -->
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-bulb"></i>
+          Recommendations for you
+        </div>
+        <div class="rec-list">
+          <div class="rec-item" *ngFor="let rec of recommendations">
+            <div class="rec-icon">{{ rec.icon }}</div>
+            <div class="rec-content">
+              <strong>{{ rec.title }}</strong>
+              <span>{{ rec.body }}</span>
+            </div>
+          </div>
+          <div class="rec-empty" *ngIf="recommendations.length === 0">
+            Loading personalized recommendations...
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Risk Panel -->
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-shield-check"></i>
+          Your health risk
+          <!-- ML badge — shows whether prediction came from Flask or fallback -->
+          <span class="ml-badge" [class.ml-active]="aqiData.mlAvailable">
+            {{ aqiData.mlAvailable ? ' AI Prediction' : ' Rule-based' }}
+          </span>
+        </div>
+
+        <div class="risk-display" [ngClass]="healthRiskClass">
+          <span class="risk-value">{{ healthRisk }}</span>
+          <span class="risk-sub">Risk level based on your profile</span>
+        </div>
+
+        <!-- Confidence bar — only shown when ML is available -->
+        <div class="confidence-row" *ngIf="aqiData.mlAvailable">
+          <span class="conf-label">Model confidence</span>
+          <div class="conf-bar">
+            <div class="conf-fill" [style.width]="confidencePercent"></div>
+          </div>
+          <span class="conf-pct">{{ confidencePercent }}</span>
+        </div>
+
+        <div class="profile-table">
+          <div class="profile-row">
+            <span>Age group</span>
+            <span>{{ formatAgeGroup(user?.ageGroup) }}</span>
+          </div>
+          <div class="profile-row">
+            <span>Condition</span>
+            <span>{{ formatCondition(user?.healthCondition) }}</span>
+          </div>
+          <div class="profile-row">
+            <span>Today's AQI</span>
+            <span>{{ aqiData.aqi }}</span>
+          </div>
+          <div class="profile-row">
+            <span>Prediction by</span>
+            <span>{{ aqiData.mlAvailable ? 'Random Forest (Flask)' : 'Rule-based fallback' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>

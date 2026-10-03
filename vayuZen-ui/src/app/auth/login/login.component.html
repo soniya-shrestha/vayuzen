@@ -1,0 +1,107 @@
+<div class="auth-page">
+
+  <!-- Floating particles (pure CSS, no JS needed) -->
+  <div class="particles" aria-hidden="true">
+    <span class="particle" *ngFor="let p of [1,2,3,4,5,6,7,8,9,10,11,12]"></span>
+  </div>
+
+  <!-- Left panel: branding -->
+  <div class="auth-brand">
+    <div class="brand-inner">
+      <div class="logo">
+        <span class="logo-text">VayuZen</span>
+      </div>
+      <h1 class="brand-headline">Breathe smarter.<br>Live healthier.</h1>
+      <p class="brand-sub">
+        Real-time air quality data for Kathmandu — with personalized health insights built for you.
+      </p>
+      <div class="brand-stats">
+        <div class="stat">
+          <span class="stat-value">24/7</span>
+          <span class="stat-label">Live AQI Monitoring</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Air Pollutants Tracked</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">AI</span>
+          <span class="stat-label">Health Risk Prediction</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel: login form -->
+  <div class="auth-form-panel">
+    <div class="auth-card">
+
+      <div class="card-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to check today's air quality in Kathmandu</p>
+      </div>
+
+      <!-- Error alert -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input id="email" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email" />
+          <span class="field-error" *ngIf="f['email'].invalid && f['email'].touched">
+            <ng-container *ngIf="f['email'].errors?.['required']">Email is required</ng-container>
+            <ng-container *ngIf="f['email'].errors?.['email']">Enter a valid email</ng-container>
+          </span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-with-icon">
+            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+              placeholder="Enter your password" autocomplete="current-password" />
+            <button type="button" class="toggle-password" (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+
+              <!-- Eye OPEN — show when password is hidden -->
+              <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+
+              <!-- Eye CLOSED — show when password is visible -->
+              <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="f['password'].invalid && f['password'].touched">
+            Password must be at least 6 characters
+          </span>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          <span class="spinner" *ngIf="isLoading"></span>
+          <span>{{ isLoading ? 'Signing in...' : 'Sign in' }}</span>
+        </button>
+
+      </form>
+
+      <p class="switch-link">
+        Don't have an account?
+        <a routerLink="/auth/register">Create one free</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>
